@@ -15,7 +15,7 @@ describe('Central de atendimento ao cliente TAT', function(){
         cy.get('#email').type("mail@mail.com");
         cy.get('#phone').type("199999-9999");
         cy.get('#product').select('Cursos');
-        cy.get('#open-text-area').type("campos de textos para escritas e comentários");
+        cy.get('#open-text-area').type("campos de textos para escritas e comentários", {delay:0});
         cy.contains('button', 'Enviar').click();
         cy.get('.success').should('be.visible');
     })
@@ -25,7 +25,7 @@ describe('Central de atendimento ao cliente TAT', function(){
         cy.get('#lastName').type("Toledo");
         cy.get('#email').type("mail@mail,com");
         cy.get('#phone').type("199999-9999");
-        cy.get('#open-text-area').type("campos de textos para escritas e comentários");
+        cy.get('#open-text-area').type("campos de textos para escritas e comentários", {delay:0});
         cy.contains('button', 'Enviar').click();
         cy.get('.error').should('be.visible');
     })
@@ -61,7 +61,7 @@ describe('Central de atendimento ao cliente TAT', function(){
         cy.get('#product').select(1).should('have.value', 'blog')
     })
 
-    it("usando seletor raio button", () => {
+    it("usando seletor radio button", () => {
         cy.get('input[type="radio"][value="feedback"]')
             .check()
             .should('have.value', 'feedback');
@@ -86,5 +86,57 @@ describe('Central de atendimento ao cliente TAT', function(){
             }
         )
     })
+
+    it("interagindo com check-box", () => {
+        cy.get('input[type="checkbox"]')
+            .check()
+            .should('be.checked')
+            .last()
+            .uncheck()
+            .should('not.be.checked')
+    })
+
+    it('fazendo upload de arquivo', () => {
+        cy.fillMandatoryFields();
+        cy.get('input[type="file"]')
+            .should('not.have.value')
+            .selectFile('./cypress/fixtures/receitas-bar.pdf')
+            .should(function($input) {
+                expect($input[0].files[0].name).to.equal('receitas-bar.pdf')
+            })
+    })
+
+    it("drag-and-drop file test", () => {
+        cy.get('input[type="file"]')
+            .should('not.have.value')
+            .selectFile('./cypress/fixtures/receitas-bar.pdf', {action: 'drag-drop'})
+            .should(function($input) {
+                expect($input[0].files[0].name).to.equal('receitas-bar.pdf')
+            })
+    })
+
+    it("utilizando um Alias em fixtures", () => {
+        cy.fixture('receitas-bar.pdf').as('receita');
+        cy.get('input[type="file"]')
+        .selectFile('@receita')
+        .should(function($input) {
+            expect($input[0].files[0].name).to.equal('receitas-bar.pdf')
+        })
+    })
+
+    it("Verificando um link que abre uma segunda aba", () => {
+        cy.get('#privacy a').should('have.attr', 'target', '_blank')
+    })
+
+    it("Removendo uma chamada de nova aba", () => {
+        cy.get('#privacy a')
+            .invoke('removeAttr', 'target')
+            .click()
+        
+        cy.contains('Talking About Testing').should('be.visible')
+    })
+
+    
+
 
 })
